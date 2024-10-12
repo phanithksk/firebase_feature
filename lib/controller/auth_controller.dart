@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class BaseAuth {
   Future<User?> currentUser();
@@ -75,7 +75,7 @@ class AuthService {
     }
   }
 
-  Future<String?> registration({
+  Future<String?> signUp({
     required String email,
     required String password,
   }) async {
@@ -109,7 +109,6 @@ class AuthService {
       );
       return 'Success';
     } on FirebaseAuthException catch (e) {
-      debugPrint("---e.code:${e.code}");
       if (e.code == 'user-not-found') {
         return 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
@@ -124,22 +123,73 @@ class AuthService {
     }
   }
 
-  // void _passwordReset() async{
-  // final form = formKey1.currentState;
-  // if(form.validate()){
-  //   form.save();
-  //   try {
-  //     await widget.auth.resetPassword(_emailpassword);
-  //     Navigator.of(context).pop();
-  //     final snackBar = SnackBar(content: Text("Password Reset Email Sent"));
-  //     scaffoldKey.currentState.showSnackBar(snackBar);
-  //   }
-  //   catch(e){
-  //     Fluttertoast.showToast(
-  //         msg: "Invalid Input!",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //     );
-  //   }
+  Future<String?> forgotPassword({required String email}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      return "Password reset email sent.";
+    } on FirebaseAuthException catch (err) {
+      if (err.code == 'user-not-found') {
+        return 'No user found for that email.';
+      } else if (err.code == 'invalid-email') {
+        return "The email address is badly formatted.";
+      } else {
+        return err.message;
+      }
+    } on SocketException {
+      return 'Network error. Please check your connection and try again.';
+    } catch (err) {
+      return 'An error occurred: ${err.toString()}';
+    }
+  }
+
+  // signInWithGoogle() async {
+  //   GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  //   GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+  //   // Create a new credential
+  //   AuthCredential credential = GoogleAuthProvider.credential(
+  //     accessToken: googleAuth?.accessToken,
+  //     idToken: googleAuth?.idToken,
+  //   );
+  //   UserCredential userCredential =
+  //       await FirebaseAuth.instance.signInWithCredential(credential);
+  //   debugPrint("---${userCredential.user?.displayName}");
   // }
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
+  Future<User?> signInWithGoogle() async {
+    try {
+      // Start the Google Sign-In process
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        // If the user cancels the sign-in process
+        return null;
+      }
+
+      // Get the authentication object
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Check if the accessToken or idToken is null
+      if (googleAuth.idToken == null && googleAuth.accessToken == null) {
+        throw Exception('Access token and ID token are both null');
+      }
+
+      // Create a new credential using the tokens
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in with Firebase
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
+      return userCredential.user;
+    } catch (e) {
+      print(e.toString());
+      throw e;
+    }
+  }
 }
