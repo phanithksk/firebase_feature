@@ -1,12 +1,11 @@
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class BaseAuth {
   Future<User?> currentUser();
-  // Future<String?> signIn(String email, String password);
-  // Future<String> createUser(String email, String password);
   Future<void> signOut();
   Future<String?> getEmail();
   Future<bool> isEmailVerified();
@@ -75,7 +74,7 @@ class AuthService {
     }
   }
 
-  Future<String?> registration({
+  Future<String?> signUp({
     required String email,
     required String password,
   }) async {
@@ -109,7 +108,6 @@ class AuthService {
       );
       return 'Success';
     } on FirebaseAuthException catch (e) {
-      debugPrint("---e.code:${e.code}");
       if (e.code == 'user-not-found') {
         return 'No user found for that email.';
       } else if (e.code == 'wrong-password') {
@@ -124,22 +122,70 @@ class AuthService {
     }
   }
 
-  // void _passwordReset() async{
-  // final form = formKey1.currentState;
-  // if(form.validate()){
-  //   form.save();
-  //   try {
-  //     await widget.auth.resetPassword(_emailpassword);
-  //     Navigator.of(context).pop();
-  //     final snackBar = SnackBar(content: Text("Password Reset Email Sent"));
-  //     scaffoldKey.currentState.showSnackBar(snackBar);
-  //   }
-  //   catch(e){
-  //     Fluttertoast.showToast(
-  //         msg: "Invalid Input!",
-  //         toastLength: Toast.LENGTH_SHORT,
-  //         gravity: ToastGravity.BOTTOM,
-  //     );
-  //   }
-  // }
+  Future<String?> forgotPassword({required String email}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      return "Password reset email sent.";
+    } on FirebaseAuthException catch (err) {
+      if (err.code == 'user-not-found') {
+        return 'No user found for that email.';
+      } else if (err.code == 'invalid-email') {
+        return "The email address is badly formatted.";
+      } else {
+        return err.message;
+      }
+    } on SocketException {
+      return 'Network error. Please check your connection and try again.';
+    } catch (err) {
+      return 'An error occurred: ${err.toString()}';
+    }
+  }
+
+  bool isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        debugPrint('-----Google Sign-In was aborted');
+        return null;
+      }
+      final googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      return await _auth.signInWithCredential(credential);
+    } catch (e) {
+      debugPrint('----Sign-in failed: ${e.toString()}');
+    }
+    return null;
+  }
+
+  Future<User?> signInWithFacebook() async {
+    try {
+      final LoginResult loginResult = await FacebookAuth.instance.login();
+
+      if (loginResult.status == LoginStatus.success) {
+        debugPrint('-----Facebook Sign-In success');
+        final OAuthCredential facebookAuthCredential =
+            FacebookAuthProvider.credential(
+                loginResult.accessToken!.tokenString);
+
+        return (await FirebaseAuth.instance
+                .signInWithCredential(facebookAuthCredential))
+            .user;
+      } else if (loginResult.status == LoginStatus.cancelled) {
+        debugPrint('-----Facebook Sign-In was cancelled by the user');
+      } else {
+        debugPrint('-----Facebook Sign-In failed: ${loginResult.message}');
+      }
+    } catch (e) {
+      debugPrint('----Sign-in failed: ${e.toString()}');
+    }
+
+    return null;
+  }
 }
