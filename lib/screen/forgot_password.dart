@@ -60,9 +60,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: scaffoldKey,
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle.dark,
+        backgroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -70,9 +72,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: <Widget>[
-            Container(
-              height: 30.0,
-            ),
             const Text(
               "Reset Password",
               style: TextStyle(
@@ -150,7 +149,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                 ],
               ),
             ),
-            const Padding(padding: EdgeInsets.only(top: 40.0)),
+            const Padding(padding: EdgeInsets.only(top: 20.0)),
             GestureDetector(
               onTap: () {
                 passwordReset();

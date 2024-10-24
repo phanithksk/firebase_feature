@@ -20,6 +20,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String email = "";
   String name = "";
   String firstCharacter = "";
+  String profileImage = " ";
 
   void onSignOut() async {
     try {
@@ -39,6 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
           email = user.email.toString();
           name = email.split('@')[0];
           firstCharacter = email[0];
+          profileImage = user.photoURL ?? "";
         } else {
           email = "Loading...";
         }
@@ -105,15 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.purple,
-              child: Text(
-                firstCharacter.toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.0,
-                  fontFamily: "Karla",
-                ),
-              ),
+              backgroundImage: NetworkImage(profileImage),
             ),
           )
         ],

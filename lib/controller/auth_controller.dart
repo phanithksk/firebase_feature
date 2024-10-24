@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class BaseAuth {
   Future<User?> currentUser();
-  // Future<String?> signIn(String email, String password);
-  // Future<String> createUser(String email, String password);
   Future<void> signOut();
   Future<String?> getEmail();
   Future<bool> isEmailVerified();
@@ -142,54 +141,51 @@ class AuthService {
     }
   }
 
-  // signInWithGoogle() async {
-  //   GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-  //   GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-
-  //   // Create a new credential
-  //   AuthCredential credential = GoogleAuthProvider.credential(
-  //     accessToken: googleAuth?.accessToken,
-  //     idToken: googleAuth?.idToken,
-  //   );
-  //   UserCredential userCredential =
-  //       await FirebaseAuth.instance.signInWithCredential(credential);
-  //   debugPrint("---${userCredential.user?.displayName}");
-  // }
-
+  bool isLoading = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-
-  Future<User?> signInWithGoogle() async {
+  Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Start the Google Sign-In process
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
-        // If the user cancels the sign-in process
+        debugPrint('-----Google Sign-In was aborted');
         return null;
       }
+      final googleAuth = await googleUser.authentication;
 
-      // Get the authentication object
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-
-      // Check if the accessToken or idToken is null
-      if (googleAuth.idToken == null && googleAuth.accessToken == null) {
-        throw Exception('Access token and ID token are both null');
-      }
-
-      // Create a new credential using the tokens
-      final OAuthCredential credential = GoogleAuthProvider.credential(
+      final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in with Firebase
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
-      return userCredential.user;
+      return await _auth.signInWithCredential(credential);
     } catch (e) {
-      print(e.toString());
-      throw e;
+      debugPrint('----Sign-in failed: ${e.toString()}');
     }
+    return null;
+  }
+
+  Future<User?> signInWithFacebook() async {
+    try {
+      final LoginResult loginResult = await FacebookAuth.instance.login();
+
+      if (loginResult.status == LoginStatus.success) {
+        debugPrint('-----Facebook Sign-In success');
+        final OAuthCredential facebookAuthCredential =
+            FacebookAuthProvider.credential(
+                loginResult.accessToken!.tokenString);
+
+        return (await FirebaseAuth.instance
+                .signInWithCredential(facebookAuthCredential))
+            .user;
+      } else if (loginResult.status == LoginStatus.cancelled) {
+        debugPrint('-----Facebook Sign-In was cancelled by the user');
+      } else {
+        debugPrint('-----Facebook Sign-In failed: ${loginResult.message}');
+      }
+    } catch (e) {
+      debugPrint('----Sign-in failed: ${e.toString()}');
+    }
+
+    return null;
   }
 }

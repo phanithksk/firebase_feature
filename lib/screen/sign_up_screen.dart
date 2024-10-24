@@ -3,7 +3,6 @@
 import 'package:firebase_feature/controller/auth_controller.dart';
 import 'package:firebase_feature/screen/check_user.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class SignUpScreen extends StatefulWidget {
   final BaseAuth auth;
@@ -30,6 +29,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final form = formKey.currentState;
     if (form!.validate()) {
       form.save();
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
       String? signUpResult =
           await AuthService().signUp(email: email, password: password);
 
@@ -41,7 +48,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
             (Route<dynamic> route) => false);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(signUpResult!)),
+          SnackBar(
+            content: Text(signUpResult!),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -50,11 +60,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: scaffoldKey,
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-        automaticallyImplyLeading: false,
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.only(left: 20.0, right: 20.0),
@@ -62,9 +69,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             children: <Widget>[
-              // Container(
-              //   height: 50.0,
-              // ),
               const FlutterLogo(
                 size: 120,
                 duration: Duration(seconds: 2),
@@ -75,47 +79,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 key: formKey,
                 child: Column(
                   children: <Widget>[
-                    TextFormField(
-                      cursorColor: Colors.grey,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(
-                            color: Colors.grey,
-                            width: 0.5,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: const BorderSide(
-                            color: Colors.grey,
-                            width: 0.5,
-                          ),
-                        ),
-                        hintText: "Enter Your Name",
-                        hintStyle: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                          fontFamily: "Karla",
-                        ),
-                        prefixIcon: const Padding(
-                          padding: EdgeInsets.only(left: 25, right: 10),
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 14,
-                        fontFamily: "Karla",
-                      ),
-                      validator: (val) => val!.isEmpty ? "Invalid Name" : null,
-                      onSaved: (val) => name = val ?? "",
-                      onFieldSubmitted: (val) =>
-                          FocusScope.of(context).requestFocus(f1),
-                    ),
+                    // TextFormField(
+                    //   cursorColor: Colors.grey,
+                    //   decoration: InputDecoration(
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(30),
+                    //       borderSide: const BorderSide(
+                    //         color: Colors.grey,
+                    //         width: 0.5,
+                    //       ),
+                    //     ),
+                    //     focusedBorder: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(30),
+                    //       borderSide: const BorderSide(
+                    //         color: Colors.grey,
+                    //         width: 0.5,
+                    //       ),
+                    //     ),
+                    //     hintText: "Enter Your Name",
+                    //     hintStyle: const TextStyle(
+                    //       fontSize: 14,
+                    //       color: Colors.grey,
+                    //       fontFamily: "Karla",
+                    //     ),
+                    //     prefixIcon: const Padding(
+                    //       padding: EdgeInsets.only(left: 25, right: 10),
+                    //       child: Icon(
+                    //         Icons.person,
+                    //         color: Colors.grey,
+                    //       ),
+                    //     ),
+                    //   ),
+                    //   style: const TextStyle(
+                    //     color: Colors.black,
+                    //     fontSize: 14,
+                    //     fontFamily: "Karla",
+                    //   ),
+                    //   validator: (val) => val!.isEmpty ? "Invalid Name" : null,
+                    //   onSaved: (val) => name = val ?? "",
+                    //   onFieldSubmitted: (val) =>
+                    //       FocusScope.of(context).requestFocus(f1),
+                    // ),
                     const Padding(padding: EdgeInsets.only(top: 15.0)),
                     TextFormField(
                       cursorColor: Colors.grey,
@@ -266,6 +270,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ],
               ),
+              const Padding(padding: EdgeInsets.only(top: 20.0)),
             ],
           ),
         ),

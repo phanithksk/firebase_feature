@@ -1,9 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_feature/controller/auth_controller.dart';
+import 'package:firebase_feature/screen/check_user.dart';
 import 'package:firebase_feature/screen/forgot_password.dart';
 import 'package:firebase_feature/screen/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'sign_up_screen.dart';
 
 class SigninScreen extends StatefulWidget {
@@ -53,15 +54,9 @@ class _SigninScreenState extends State<SigninScreen>
     final form = formKey.currentState;
     if (form!.validate()) {
       form.save();
-      debugPrint("--Email: $email Password: $password");
+
       String? loginResult =
           await AuthService().login(email: email, password: password);
-
-      // await FirebaseAuth.instance
-      //     .sendSignInLinkToEmail(email: email, actionCodeSettings: acs)
-      //     .catchError((onError) =>
-      //         debugPrint('Error sending email verification $onError'))
-      //     .then((value) => debugPrint('Successfully sent email verification'));
 
       if (loginResult == 'Success') {
         Navigator.of(context).pushReplacement(
@@ -84,10 +79,8 @@ class _SigninScreenState extends State<SigninScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       key: scaffoldKey,
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -304,8 +297,29 @@ class _SigninScreenState extends State<SigninScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () {
-                      AuthService().signInWithGoogle();
+                    onTap: () async {
+                      setState(() {
+                        AuthService().isLoading = true;
+                      });
+
+                      final userCredential =
+                          await AuthService().signInWithGoogle();
+
+                      setState(() {
+                        AuthService().isLoading = false;
+                      });
+
+                      if (userCredential != null) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => CheckUser(
+                              auth: widget.auth,
+                            ),
+                          ),
+                        );
+                      } else {
+                        debugPrint('-----Sign-in failed. Unable to navigate.');
+                      }
                     },
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
@@ -316,7 +330,50 @@ class _SigninScreenState extends State<SigninScreen>
                     width: 20,
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () async {
+                      // Show a loading indicator while waiting for the sign-in to complete
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        },
+                      );
+
+                      try {
+                        final userCredential =
+                            await AuthService().signInWithFacebook();
+
+                        Navigator.of(context).pop();
+
+                        if (userCredential != null) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  CheckUser(auth: widget.auth),
+                            ),
+                          );
+                        } else {
+                          debugPrint(
+                              '-----Sign-in failed. Unable to navigate.');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Sign-in failed. Please try again.'),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        Navigator.of(context).pop();
+                        debugPrint('-----Sign-in error: ${e.toString()}');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('----An error occurred during sign-in.'),
+                          ),
+                        );
+                      }
+                    },
                     child: CircleAvatar(
                       backgroundColor: Colors.white,
                       child: Image.asset('assets/facebook.png'),
