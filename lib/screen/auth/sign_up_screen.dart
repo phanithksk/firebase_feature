@@ -1,12 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
-
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 import 'package:firebase_feature/controller/auth_controller.dart';
 import 'package:firebase_feature/screen/check_user.dart';
 import 'package:flutter/material.dart';
 
 class SignUpScreen extends StatefulWidget {
-  final BaseAuth auth;
-  const SignUpScreen({super.key, required this.auth});
+  const SignUpScreen({
+    super.key,
+  });
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -25,27 +25,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
     f2 = FocusNode();
   }
 
+  bool isLoading = false;
+
   void submit() async {
     final form = formKey.currentState;
     if (form!.validate()) {
       form.save();
 
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      setState(() {
+        isLoading = true;
+      });
+      // Attempt to create the user
       String? signUpResult =
           await AuthService().signUp(email: email, password: password);
-
+      setState(() {
+        isLoading = false;
+      });
       if (signUpResult == 'Success') {
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (BuildContext context) => CheckUser(auth: widget.auth),
+              builder: (BuildContext context) => const CheckUser(),
             ),
             (Route<dynamic> route) => false);
+        // Add User to Firestore
+        AuthService().addUserDetail(
+          name: name,
+          email: email,
+          password: int.parse(password),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -79,54 +86,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 key: formKey,
                 child: Column(
                   children: <Widget>[
-                    // TextFormField(
-                    //   cursorColor: Colors.grey,
-                    //   decoration: InputDecoration(
-                    //     border: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(30),
-                    //       borderSide: const BorderSide(
-                    //         color: Colors.grey,
-                    //         width: 0.5,
-                    //       ),
-                    //     ),
-                    //     focusedBorder: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(30),
-                    //       borderSide: const BorderSide(
-                    //         color: Colors.grey,
-                    //         width: 0.5,
-                    //       ),
-                    //     ),
-                    //     hintText: "Enter Your Name",
-                    //     hintStyle: const TextStyle(
-                    //       fontSize: 14,
-                    //       color: Colors.grey,
-                    //       fontFamily: "Karla",
-                    //     ),
-                    //     prefixIcon: const Padding(
-                    //       padding: EdgeInsets.only(left: 25, right: 10),
-                    //       child: Icon(
-                    //         Icons.person,
-                    //         color: Colors.grey,
-                    //       ),
-                    //     ),
-                    //   ),
-                    //   style: const TextStyle(
-                    //     color: Colors.black,
-                    //     fontSize: 14,
-                    //     fontFamily: "Karla",
-                    //   ),
-                    //   validator: (val) => val!.isEmpty ? "Invalid Name" : null,
-                    //   onSaved: (val) => name = val ?? "",
-                    //   onFieldSubmitted: (val) =>
-                    //       FocusScope.of(context).requestFocus(f1),
-                    // ),
+                    TextFormField(
+                      cursorColor: Colors.grey,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: const BorderSide(
+                            color: Colors.grey,
+                            width: 0.5,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: const BorderSide(
+                            color: Colors.grey,
+                            width: 0.5,
+                          ),
+                        ),
+                        hintText: "Enter Your Name",
+                        hintStyle: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                          fontFamily: "Karla",
+                        ),
+                        prefixIcon: const Padding(
+                          padding: EdgeInsets.only(left: 25, right: 10),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontFamily: "Karla",
+                      ),
+                      validator: (val) => val!.isEmpty ? "Invalid Name" : null,
+                      onSaved: (val) => name = val ?? "",
+                      onFieldSubmitted: (val) =>
+                          FocusScope.of(context).requestFocus(f1),
+                    ),
                     const Padding(padding: EdgeInsets.only(top: 15.0)),
                     TextFormField(
                       cursorColor: Colors.grey,
                       keyboardType: TextInputType.emailAddress,
                       focusNode: f1,
                       decoration: InputDecoration(
-                        hintText: "Enter Your Email",
+                        hintText: "Email or Phone",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
                           borderSide: const BorderSide(
@@ -159,7 +166,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         fontSize: 14,
                         fontFamily: "Karla",
                       ),
-                      validator: AuthService().emailValidator,
+                      validator: AuthService().emailOrPhoneValidator,
                       onSaved: (val) => email = val ?? "",
                       onFieldSubmitted: (val) =>
                           FocusScope.of(context).requestFocus(f2),
@@ -226,15 +233,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: const Text(
-                    "Sign Up",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16.0,
-                      fontFamily: "Karla",
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          "Sign Up",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0,
+                            fontFamily: "Karla",
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
               const Padding(padding: EdgeInsets.only(top: 20.0)),
@@ -253,9 +267,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     onTap: () {
                       Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                            builder: (BuildContext context) => CheckUser(
-                              auth: widget.auth,
-                            ),
+                            builder: (BuildContext context) =>
+                                const CheckUser(),
                           ),
                           (Route<dynamic> route) => false);
                     },

@@ -1,11 +1,11 @@
 import 'package:firebase_feature/screen/check_user.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../controller/auth_controller.dart';
 
 class SplashScreen extends StatefulWidget {
-  final BaseAuth auth;
-  const SplashScreen({super.key, required this.auth});
+  const SplashScreen({
+    super.key,
+  });
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -33,9 +33,7 @@ class _SplashScreenState extends State<SplashScreen>
       const Duration(seconds: 4),
       () => Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) => CheckUser(
-            auth: widget.auth,
-          ),
+          builder: (BuildContext context) => const CheckUser(),
         ),
       ),
     );

@@ -1,18 +1,13 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_feature/screen/home_screen.dart';
 import 'package:flutter/material.dart';
-import '../controller/auth_controller.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
-  final BaseAuth auth;
-  final VoidCallback onSignedOut;
   const VerifyEmailScreen({
     super.key,
-    required this.auth,
-    required this.onSignedOut,
   });
 
   @override
@@ -38,6 +33,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     }
   }
 
+// com.beltei.learning
   Future sendEmailVerification() async {
     try {
       final user = FirebaseAuth.instance.currentUser!;
@@ -70,35 +66,21 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     return isEmailVerify
-        ? MyHomePage(
-            auth: widget.auth,
-            onSignedOut: widget.onSignedOut,
-            title: 'Home Screen',
-          )
+        ? const MyHomePage()
         : Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.deepPurple[400]!,
-              title: const Text(
-                "Verify Email",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18.0,
-                  fontFamily: "Karla",
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            backgroundColor: Colors.white,
             body: Padding(
               padding: const EdgeInsets.all(30),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+              child: ListView(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   const SizedBox(
-                    height: 50,
+                    height: 80,
                   ),
                   Image.asset(
                     'assets/verify-email.png',
-                    height: 200,
+                    height: 180,
                   ),
                   const SizedBox(
                     height: 50,

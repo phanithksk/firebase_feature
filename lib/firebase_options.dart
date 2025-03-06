@@ -35,7 +35,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDTwYsoDPzu9axdD2LvXGABKBKDN9jWfRU',
-    appId: '1:428831322692:android:f2daa6041cc3ce9e828211',
+    appId: '1:428831322692:android:e9504c5a3785b7bd828211',
     messagingSenderId: '428831322692',
     projectId: 'fir-feature-49943',
     storageBucket: 'fir-feature-49943.appspot.com',
@@ -43,10 +43,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDLYCS9qLs7xk-yZywCtI9yWfsYpnuQilo',
-    appId: '1:428831322692:ios:446f254a87ea2039828211',
+    appId: '1:428831322692:ios:849ce552bc1bb1d5828211',
     messagingSenderId: '428831322692',
     projectId: 'fir-feature-49943',
     storageBucket: 'fir-feature-49943.appspot.com',
-    iosBundleId: 'com.example.firebaseFeature',
+    androidClientId: '428831322692-u092cmlfkbo9diqqee549ka41elo6mp4.apps.googleusercontent.com',
+    iosClientId: '428831322692-or9h6l2lf0vq67qbbs1ekd333m2pmq6b.apps.googleusercontent.com',
+    iosBundleId: 'com.beltei.learning',
   );
+
 }

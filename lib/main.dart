@@ -1,5 +1,5 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_feature/controller/auth_controller.dart';
 import 'package:firebase_feature/firebase_options.dart';
 import 'package:firebase_feature/screen/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +9,15 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(MyApp());
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+    appleProvider: AppleProvider.appAttest,
+  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  final BaseAuth auth = Auth();
-
-  MyApp({super.key});
+  const MyApp({super.key});
   @override
   MyAppState createState() {
     return MyAppState();
@@ -25,11 +27,9 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(
-        auth: widget.auth,
-      ),
+      home: SplashScreen(),
     );
   }
 }

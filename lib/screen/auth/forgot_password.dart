@@ -1,16 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 import 'package:firebase_feature/controller/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  final BaseAuth auth;
-  final VoidCallback onSignedIn;
   const ForgotPasswordScreen({
     super.key,
-    required this.auth,
-    required this.onSignedIn,
   });
 
   @override
@@ -34,7 +30,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
         if (result == null) {
           const snackBar = SnackBar(
             content: Text(
-                "If an account exists with this email, a password reset email has been sent."),
+              "If an account exists with this email, a password reset email has been sent.",
+            ),
           );
           ScaffoldMessenger.of(context).showSnackBar(snackBar);
           Navigator.of(context).pop();
@@ -143,7 +140,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                       fontSize: 14,
                       fontFamily: "Karla",
                     ),
-                    validator: AuthService().emailValidator,
+                    validator: AuthService().emailOrPhoneValidator,
                     onSaved: (val) => emailpassword = val ?? "",
                   ),
                 ],
