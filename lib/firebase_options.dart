@@ -2,7 +2,7 @@
 // ignore_for_file: type=lint
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+    show defaultTargetPlatform, TargetPlatform;
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -16,18 +16,11 @@ import 'package:flutter/foundation.dart'
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    if (kIsWeb) {
-      return web;
-    }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
         return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -40,49 +33,23 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDpnVC8VbdAGDo-KIG_2chjBPLQzoh_WKQ',
-    appId: '1:1097369011286:web:d107dedd12eb18eef4a7f7',
-    messagingSenderId: '1097369011286',
-    projectId: 'fir-learn-f00b9',
-    authDomain: 'fir-learn-f00b9.firebaseapp.com',
-    storageBucket: 'fir-learn-f00b9.appspot.com',
-    measurementId: 'G-XQ82DZGF9E',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAnMDDp2OehyIj5jkyuMX3iv5741BlBX_4',
-    appId: '1:1097369011286:android:c7208d4787f2ac1df4a7f7',
-    messagingSenderId: '1097369011286',
-    projectId: 'fir-learn-f00b9',
-    storageBucket: 'fir-learn-f00b9.appspot.com',
+    apiKey: 'AIzaSyDTwYsoDPzu9axdD2LvXGABKBKDN9jWfRU',
+    appId: '1:428831322692:android:e9504c5a3785b7bd828211',
+    messagingSenderId: '428831322692',
+    projectId: 'fir-feature-49943',
+    storageBucket: 'fir-feature-49943.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBtgmntnfU0ofhubc1HX_XISQVw_-4jxgg',
-    appId: '1:1097369011286:ios:0a39cc18e0bbc886f4a7f7',
-    messagingSenderId: '1097369011286',
-    projectId: 'fir-learn-f00b9',
-    storageBucket: 'fir-learn-f00b9.appspot.com',
-    iosBundleId: 'com.example.firebaseFeature',
+    apiKey: 'AIzaSyDLYCS9qLs7xk-yZywCtI9yWfsYpnuQilo',
+    appId: '1:428831322692:ios:849ce552bc1bb1d5828211',
+    messagingSenderId: '428831322692',
+    projectId: 'fir-feature-49943',
+    storageBucket: 'fir-feature-49943.appspot.com',
+    androidClientId: '428831322692-u092cmlfkbo9diqqee549ka41elo6mp4.apps.googleusercontent.com',
+    iosClientId: '428831322692-or9h6l2lf0vq67qbbs1ekd333m2pmq6b.apps.googleusercontent.com',
+    iosBundleId: 'com.beltei.learning',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBtgmntnfU0ofhubc1HX_XISQVw_-4jxgg',
-    appId: '1:1097369011286:ios:0a39cc18e0bbc886f4a7f7',
-    messagingSenderId: '1097369011286',
-    projectId: 'fir-learn-f00b9',
-    storageBucket: 'fir-learn-f00b9.appspot.com',
-    iosBundleId: 'com.example.firebaseFeature',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDpnVC8VbdAGDo-KIG_2chjBPLQzoh_WKQ',
-    appId: '1:1097369011286:web:8243042384ff60def4a7f7',
-    messagingSenderId: '1097369011286',
-    projectId: 'fir-learn-f00b9',
-    authDomain: 'fir-learn-f00b9.firebaseapp.com',
-    storageBucket: 'fir-learn-f00b9.appspot.com',
-    measurementId: 'G-8TQZ9P8M9S',
-  );
 }
